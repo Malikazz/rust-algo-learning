@@ -5,10 +5,14 @@
 extern crate factor;
 extern crate test;
 
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use test::Bencher;
+
+    
 
     #[bench]
     fn bench_project_euler_1(b: &mut Bencher) {
@@ -26,7 +30,7 @@ mod tests {
     // }
     #[bench]
     fn bench_sum_four(b: &mut Bencher) {
-        b.iter(|| four_number_sum(vec![7,6,4,-1,1,2], 16))
+        b.iter(|| four_number_sum(vec![7,6,4,-1,1,2], 16));
     }
 }
 
@@ -201,7 +205,6 @@ fn four_number_sum(mut input_array: Vec<i32>, target_sum: i32) -> Vec<Vec<i32>> 
             }
         }
     }
-    print!("{:?}", found_quads);
     return found_quads
 }
 
