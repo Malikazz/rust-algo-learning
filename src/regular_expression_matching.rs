@@ -102,21 +102,6 @@ pub fn solution(s: String, p: String) -> bool {
             match_lists.push(item.found_at(s.as_bytes()));
         }
         // check rows
-        print!("MatchList \n");
-        for item in match_lists.iter(){
-            print!("{:?}\n", item);
-        } 
-        for items in match_lists.iter() {
-            let mut row_booly = false;
-            for item in items.iter() {
-                if *item {
-                    row_booly = true;
-                }
-            }
-            if row_booly == false {
-                return false;
-            }
-        }
 
         for index in 0..match_lists[0].len(){
             let mut col_booly = false;
