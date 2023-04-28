@@ -35,12 +35,12 @@ impl FoundAt for MatchGroup {
         //
 
         let mut matched: Vec<bool> = Vec::new();
-        for _ in 0..other.len(){
+        for _ in 0..other.len() {
             matched.push(false);
         }
         match self.group_type {
             GroupType::Dot | GroupType::StarDot => {
-                for index in 0..matched.len(){
+                for index in 0..matched.len() {
                     matched[index] = true;
                 }
                 matched
@@ -81,6 +81,40 @@ impl MatchGroup {
     }
 }
 
+pub fn is_contiguous_match(match_lists: Vec<Vec<bool>>, match_groups: Vec<MatchGroup>) -> bool {
+    let mut row: usize = 0;
+    let mut col: usize = 0;
+    let max_row: usize = match_groups.len() - 1;
+    let max_col: usize = match_lists.len() - 1;
+    while col <= max_col{
+
+        if match_lists[row][col]{
+            col = col + 1;
+            if match_groups[row].group_type == GroupType::Dot{
+                row = row + 1;
+            }
+            if row > max_row{
+                return false;
+            }
+            continue;
+        }
+        // no match go down a row
+        row = row + 1;
+        if match_groups[row-1].group_type != GroupType::Star {
+            col = col + 1;
+            if row > max_row || col > max_col {
+                return false;
+            }
+            if match_lists[row][col] == false && match_groups[row].group_type != GroupType::Star{
+                return false
+            }
+
+        }
+
+    }
+    true
+}
+
 pub fn solution(s: String, p: String) -> bool {
     if p.contains(".") || p.contains("*") {
         // split up regex into its parts
@@ -94,16 +128,32 @@ pub fn solution(s: String, p: String) -> bool {
         // valid tokens are ([.]) ([a-z]) ([.][*]) ([a-z][*])
         // star requires a token before it as it acts on the previous token
         let match_groups = create_match_groups(p.into_bytes());
-        for item in match_groups.iter(){
+        for item in match_groups.iter() {
             print!("{:?}\n", item);
         }
         let mut match_lists: Vec<Vec<bool>> = Vec::new();
         for item in match_groups.iter() {
             match_lists.push(item.found_at(s.as_bytes()));
         }
+        for item in match_lists.iter() {
+            print!("{:?}\n", item);
+        }
         // check rows
-
-        for index in 0..match_lists[0].len(){
+        for (index, items) in match_lists.iter().enumerate() {
+            if match_groups[index].group_type == GroupType::Star {
+                continue;
+            }
+            let mut row_booly = false;
+            for item in items.iter() {
+                if *item {
+                    row_booly = true;
+                }
+            }
+            if row_booly == false {
+                return false;
+            }
+        }
+        for index in 0..match_lists[0].len() {
             let mut col_booly = false;
             for items in match_lists.iter() {
                 if items[index] {
@@ -114,7 +164,7 @@ pub fn solution(s: String, p: String) -> bool {
                 return false;
             }
         }
-        true
+        is_contiguous_match(match_lists, match_groups)
     } else {
         // if theres no look backs just check the entire string
         s == p
@@ -126,7 +176,7 @@ pub fn create_match_groups(p: Vec<u8>) -> Vec<MatchGroup> {
     const DOT: u8 = b'.';
     let mut match_groups: Vec<MatchGroup> = Vec::new();
     let mut current_group: MatchGroup = MatchGroup::new(GroupType::Normal, Vec::new());
-    
+
     for item in p.iter().rev() {
         if *item == STAR {
             if current_group.characters.len() > 0 {
@@ -200,29 +250,44 @@ mod tests {
         assert!(result == should_be)
     }
     #[test]
-    fn test_solution(){
-        let result:bool = solution(String::from("abccbbbbbdddd"), String::from("abc.b*dddd"));
+    fn test_solution() {
+        let result: bool = solution(String::from("abccbbbbbdddd"), String::from("abc.b*dddd"));
         assert!(result == true);
     }
     #[test]
-    fn test_solution_two(){
-        let result:bool = solution(String::from("abc"), String::from("abc"));
+    fn test_solution_two() {
+        let result: bool = solution(String::from("abc"), String::from("abc"));
         assert!(result == true);
     }
     #[test]
-    fn test_solution_three(){
-        let result:bool = solution(String::from("abcc"), String::from("abc."));
+    fn test_solution_three() {
+        let result: bool = solution(String::from("abcc"), String::from("abc."));
         assert!(result == true);
     }
     #[test]
-    fn test_solution_four(){
-        let result:bool = solution(String::from("abcbbbbb"), String::from("abcb*"));
+    fn test_solution_four() {
+        let result: bool = solution(String::from("abcbbbbb"), String::from("abcb*"));
         assert!(result == true);
     }
 
     #[test]
-    fn test_solution_five(){
-        let result:bool = solution(String::from("abcbbbbb"), String::from(".*"));
+    fn test_solution_five() {
+        let result: bool = solution(String::from("abcbbbbb"), String::from(".*"));
         assert!(result == true);
+    }
+    #[test]
+    fn test_solution_six() {
+        let result: bool = solution(String::from("mississippi"), String::from("mis*is*p*."));
+        assert!(result == false);
+    }
+    #[test]
+    fn test_solution_seven() {
+        let result: bool = solution(String::from("ab"), String::from(".*c"));
+        assert!(result == false);
+    }
+    #[test]
+    fn test_solution_eight() {
+        let result: bool = solution(String::from("aab"), String::from("c*a*b*"));
+        assert!(result == false);
     }
 }
