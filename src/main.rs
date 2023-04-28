@@ -1,8 +1,11 @@
 #![feature(test)]
 #![feature(iter_advance_by)]
 
-pub mod sum_intervals;
+pub mod regular_expression_matching;
 
 fn main() {
-        print!("{:?}\n", sum_intervals::sum_intervals(&[(11, 15), (6, 10), (1, 2)]));
+    print!(
+        "{:?}\n",
+        regular_expression_matching::solution(String::from("abc"), String::from("abc"))
+    );
 }
