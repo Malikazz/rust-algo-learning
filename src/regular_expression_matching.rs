@@ -86,31 +86,28 @@ pub fn is_contiguous_match(match_lists: Vec<Vec<bool>>, match_groups: Vec<MatchG
     let mut col: usize = 0;
     let max_row: usize = match_groups.len() - 1;
     let max_col: usize = match_lists.len() - 1;
-    while col <= max_col{
-
-        if match_lists[row][col]{
+    while col <= max_col {
+        if match_lists[row][col] {
             col = col + 1;
-            if match_groups[row].group_type == GroupType::Dot{
+            if match_groups[row].group_type == GroupType::Dot {
                 row = row + 1;
             }
-            if row > max_row{
+            if row > max_row {
                 return false;
             }
             continue;
         }
         // no match go down a row
         row = row + 1;
-        if match_groups[row-1].group_type != GroupType::Star {
+        if match_groups[row - 1].group_type != GroupType::Star {
             col = col + 1;
             if row > max_row || col > max_col {
                 return false;
             }
-            if match_lists[row][col] == false && match_groups[row].group_type != GroupType::Star{
-                return false
+            if match_lists[row][col] == false && match_groups[row].group_type != GroupType::Star {
+                return false;
             }
-
         }
-
     }
     true
 }
